@@ -1,0 +1,86 @@
+{
+  "brute_force_login": {
+    "technique_id": "T1110",
+    "technique_name": "Brute Force",
+    "tactic": "Credential Access",
+    "description": "Adversaries may use brute force techniques to gain access to accounts when passwords are unknown or when password hashes are obtained. IoT devices are especially vulnerable due to widespread use of default or weak credentials.",
+    "recommended_actions": [
+      "Enforce strong, unique credentials on all IoT devices",
+      "Implement account lockout / rate-limiting after repeated failed attempts",
+      "Disable default vendor credentials immediately after deployment"
+    ],
+    "severity_weight": 0.7
+  },
+  "port_scan": {
+    "technique_id": "T1046",
+    "technique_name": "Network Service Discovery",
+    "tactic": "Discovery",
+    "description": "Adversaries may attempt to get a listing of services running on remote hosts, including those that may be vulnerable to remote exploitation, as a precursor to further attack.",
+    "recommended_actions": [
+      "Segment IoT devices onto isolated VLANs",
+      "Deploy firewall rules restricting unnecessary inbound scanning",
+      "Enable intrusion detection on gateway/router"
+    ],
+    "severity_weight": 0.5
+  },
+  "c2_communication": {
+    "technique_id": "T1071",
+    "technique_name": "Application Layer Protocol",
+    "tactic": "Command and Control",
+    "description": "Adversaries may communicate using application layer protocols to avoid detection by blending in with existing traffic, often indicating the device has already been compromised and is receiving instructions from a remote server.",
+    "recommended_actions": [
+      "Immediately isolate the affected device from the network",
+      "Block identified C2 IP/domain at the firewall",
+      "Perform full firmware reset and forensic imaging before restoring device"
+    ],
+    "severity_weight": 0.95
+  },
+  "ddos_traffic": {
+    "technique_id": "T1498",
+    "technique_name": "Network Denial of Service",
+    "tactic": "Impact",
+    "description": "Adversaries may perform network denial of service (DoS) attacks to degrade or block availability of targeted resources, often using compromised IoT devices as part of a botnet (e.g., Mirai-style attacks).",
+    "recommended_actions": [
+      "Isolate device from network immediately",
+      "Notify upstream ISP/security team if outbound flood is confirmed",
+      "Check device for signs of botnet malware and reflash firmware"
+    ],
+    "severity_weight": 0.9
+  },
+  "unauthorized_mqtt_access": {
+    "technique_id": "T1557",
+    "technique_name": "Adversary-in-the-Middle",
+    "tactic": "Collection / Credential Access",
+    "description": "Adversaries may attempt to subscribe to or publish on MQTT topics without proper authorization, potentially intercepting or manipulating sensor data flowing through the broker.",
+    "recommended_actions": [
+      "Enforce authentication and TLS on the MQTT broker",
+      "Apply topic-level access control lists (ACLs)",
+      "Audit broker logs for unauthorized subscribe/publish attempts"
+    ],
+    "severity_weight": 0.75
+  },
+  "known_cve_exploit": {
+    "technique_id": "T1190",
+    "technique_name": "Exploit Public-Facing Application",
+    "tactic": "Initial Access",
+    "description": "Adversaries may exploit a known vulnerability in device firmware or an exposed service to gain initial access to the device.",
+    "recommended_actions": [
+      "Update device firmware to the latest patched version",
+      "Restrict remote/public access to the device's management interface",
+      "Add device to a watchlist for continued monitoring"
+    ],
+    "severity_weight": 0.85
+  },
+  "botnet_signature_match": {
+    "technique_id": "S0002",
+    "technique_name": "Mirai-family Botnet Behavior",
+    "tactic": "Resource Development / Execution",
+    "description": "Traffic pattern matches known signatures associated with Mirai-family IoT botnet malware, indicating likely infection and recruitment into a botnet for future coordinated attacks.",
+    "recommended_actions": [
+      "Immediately isolate and reboot device (Mirai is often memory-resident)",
+      "Change all credentials before reconnecting device",
+      "Apply firmware update and enable auto-update if available"
+    ],
+    "severity_weight": 0.9
+  }
+}

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: A4;
+    margin: 2cm 1.8cm;
+    @bottom-center {
+      content: "Report {{ alert.alert_id }}  |  Page " counter(page) " of " counter(pages);
+      font-size: 8pt;
+      color: #6b7280;
+      font-family: 'DejaVu Sans Mono', monospace;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'DejaVu Sans', Helvetica, Arial, sans-serif;
+    color: #1a1f2b;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 3px solid #10233f;
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+  }
+  .header .title-block .eyebrow {
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 1.5px;
+    color: #7a1f2b;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  .header .title-block h1 {
+    margin: 4px 0 2px 0;
+    font-size: 19pt;
+    color: #10233f;
+  }
+  .header .title-block .subtitle {
+    font-size: 9.5pt;
+    color: #4b5563;
+  }
+  .header .meta {
+    text-align: right;
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-size: 8.5pt;
+    color: #4b5563;
+    line-height: 1.7;
+  }
+  .header .meta .alert-id {
+    font-size: 11pt;
+    font-weight: bold;
+    color: #10233f;
+  }
+
+  .severity-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: {{ severity_color }};
+    color: white;
+    padding: 10px 16px;
+    border-radius: 3px;
+    margin-bottom: 22px;
+  }
+  .severity-banner .sev-label {
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-weight: bold;
+    font-size: 10.5pt;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .severity-banner .sev-score {
+    margin-left: auto;
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-size: 10.5pt;
+  }
+
+  h2.section-title {
+    font-size: 11.5pt;
+    color: #10233f;
+    border-left: 4px solid #7a1f2b;
+    padding-left: 8px;
+    margin: 22px 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .summary-box {
+    background: #f4f5f7;
+    border: 1px solid #dcdfe4;
+    border-radius: 3px;
+    padding: 12px 14px;
+    font-size: 10pt;
+  }
+
+  table.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+  }
+  table.info-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+  }
+  table.info-table td.label {
+    width: 32%;
+    color: #6b7280;
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-size: 8.5pt;
+  }
+
+  .timeline {
+    border-left: 2px solid #10233f;
+    margin-left: 6px;
+    padding-left: 16px;
+  }
+  .timeline-item {
+    position: relative;
+    padding-bottom: 12px;
+  }
+  .timeline-item:before {
+    content: "";
+    position: absolute;
+    left: -21px;
+    top: 3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #7a1f2b;
+  }
+  .timeline-item .t-time {
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-size: 8pt;
+    color: #7a1f2b;
+    font-weight: bold;
+  }
+  .timeline-item .t-event {
+    font-size: 9.5pt;
+    color: #1a1f2b;
+  }
+
+  .attck-box {
+    border: 1px solid #dcdfe4;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .attck-header {
+    background: #10233f;
+    color: white;
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-size: 9.5pt;
+  }
+  .attck-body {
+    padding: 12px 14px;
+    font-size: 9.5pt;
+  }
+  .attck-body .tactic-tag {
+    display: inline-block;
+    background: #eef1f6;
+    color: #10233f;
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-size: 8pt;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+
+  ul.action-list {
+    margin: 6px 0 0 0;
+    padding-left: 18px;
+    font-size: 9.5pt;
+  }
+  ul.action-list li { margin-bottom: 4px; }
+
+  .evidence-box {
+    background: #f4f5f7;
+    border: 1px dashed #9ca3af;
+    border-radius: 3px;
+    padding: 10px 14px;
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-size: 8.5pt;
+    word-break: break-all;
+    color: #374151;
+  }
+  .evidence-box .ev-row { margin-bottom: 4px; }
+  .evidence-box .ev-key { color: #6b7280; }
+
+  .footer-note {
+    margin-top: 26px;
+    padding-top: 10px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 7.5pt;
+    color: #9ca3af;
+    font-family: 'DejaVu Sans Mono', monospace;
+  }
+
+  .report-hash {
+    font-size: 7.5pt;
+    color: #9ca3af;
+    font-family: 'DejaVu Sans Mono', monospace;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="title-block">
+      <div class="eyebrow">IoT Network Security &mdash; Automated Incident Report</div>
+      <h1>Security Incident Report</h1>
+      <div class="subtitle">Generated by AutoForensicAgent &middot; Anomaly Detection &amp; Digital Forensics Pipeline</div>
+    </div>
+    <div class="meta">
+      <div class="alert-id">{{ alert.alert_id }}</div>
+      <div>Generated: {{ generated_at }}</div>
+      <div>Detected: {{ alert.detected_timestamp }}</div>
+    </div>
+  </div>
+
+  <div class="severity-banner">
+    <span class="sev-label">{{ severity_label }} Severity</span>
+    <span>&mdash; {{ attack.technique_name }} ({{ attack.technique_id }})</span>
+    <span class="sev-score">Anomaly Score: {{ alert.anomaly_score }}</span>
+  </div>
+
+  <h2 class="section-title">Executive Summary</h2>
+  <div class="summary-box">
+    Device <strong>{{ device.device_id }}</strong> ({{ device.device_type }}, {{ device.vendor }}) at
+    <strong>{{ device.ip_address }}</strong> was flagged for behavior consistent with
+    <strong>{{ attack.technique_name }}</strong> (MITRE ATT&amp;CK {{ attack.technique_id }},
+    tactic: {{ attack.tactic }}). The anomaly detection engine assigned a confidence score of
+    <strong>{{ alert.anomaly_score }}</strong>, and traffic evidence was automatically captured for
+    forensic review under chain-of-custody ID <strong>{{ evidence.chain_of_custody_id }}</strong>.
+  </div>
+
+  <h2 class="section-title">Device Information</h2>
+  <table class="info-table">
+    <tr><td class="label">DEVICE ID</td><td>{{ device.device_id }}</td></tr>
+    <tr><td class="label">DEVICE TYPE</td><td>{{ device.device_type }}</td></tr>
+    <tr><td class="label">VENDOR / FINGERPRINT</td><td>{{ device.vendor }}</td></tr>
+    <tr><td class="label">IP ADDRESS</td><td>{{ device.ip_address }}</td></tr>
+    <tr><td class="label">MAC ADDRESS</td><td>{{ device.mac_address }}</td></tr>
+    <tr><td class="label">FIRST SEEN ON NETWORK</td><td>{{ device.first_seen }}</td></tr>
+  </table>
+
+  <h2 class="section-title">Detection Features</h2>
+  <table class="info-table">
+    {% for key, value in features.items() %}
+    <tr><td class="label">{{ key.upper().replace('_',' ') }}</td><td>{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2 class="section-title">Incident Timeline</h2>
+  <div class="timeline">
+    {% for event in timeline %}
+    <div class="timeline-item">
+      <div class="t-time">{{ event.time }}</div>
+      <div class="t-event">{{ event.event }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <h2 class="section-title">MITRE ATT&amp;CK Mapping</h2>
+  <div class="attck-box">
+    <div class="attck-header">
+      <span>{{ attack.technique_id }} &mdash; {{ attack.technique_name }}</span>
+      <span>{{ attack.tactic }}</span>
+    </div>
+    <div class="attck-body">
+      <span class="tactic-tag">TACTIC: {{ attack.tactic }}</span>
+      <p>{{ attack.description }}</p>
+      <strong>Recommended Actions</strong>
+      <ul class="action-list">
+        {% for action in attack.recommended_actions %}
+        <li>{{ action }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="section-title">Evidence &amp; Chain of Custody</h2>
+  <div class="evidence-box">
+    <div class="ev-row"><span class="ev-key">PCAP FILE:</span> {{ evidence.pcap_file }}</div>
+    <div class="ev-row"><span class="ev-key">SHA-256:</span> {{ evidence.pcap_sha256 }}</div>
+    <div class="ev-row"><span class="ev-key">CHAIN OF CUSTODY ID:</span> {{ evidence.chain_of_custody_id }}</div>
+    <div class="ev-row"><span class="ev-key">CAPTURED BY:</span> {{ evidence.captured_by }}</div>
+  </div>
+
+  <div class="footer-note">
+    This report was generated automatically by the IoT Anomaly Detection &amp; Digital Forensics
+    module. It is intended to support, not replace, human security analyst review. Evidence
+    integrity should be verified by re-computing the SHA-256 hash of the referenced pcap file
+    before use in any formal investigation.
+    <div class="report-hash">REPORT INTEGRITY HASH (SHA-256): {{ report_hash }}</div>
+  </div>
+
+</body>
+</html>
